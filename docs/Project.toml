@@ -1,0 +1,3 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+NordicEcon = "ecd49b92-d8da-4a29-9b24-7b9a0734afde"
