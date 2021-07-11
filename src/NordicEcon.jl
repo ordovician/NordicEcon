@@ -1,5 +1,5 @@
 module NordicEcon
 
-# Write your package code here.
+include("dataloader.jl")
 
 end
