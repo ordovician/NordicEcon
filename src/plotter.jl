@@ -52,8 +52,28 @@ function plot_GDP_per_capita()
 end
 
 function plot_maddison_GDP_data()
-    country_gdp = load_maddison_GDP_data()    
+    gdp = load_maddison_GDP_data()
+    country_gdp = groupby(gdp, :Country)            
     plot_GDP(country_gdp)
+end
+
+# This is a smarter way of doing the plotting
+function simpler_maddison_GDP_plot()
+    gdp = load_maddison_GDP_data()
+    countries = DataFrame(Country=["Norway", "Sweden", "Denmark", "Finland", "United Kingdom", "United States"])
+    
+    # Like a set intersection. Match on :Country column
+    sample = innerjoin(gdp, countries, on=:Country)    
+    
+    # Filter out irrelevant years
+    sample = filter(row -> 1950 < row.Year < 2020, sample)
+    
+    # Creates a separate series for every unique value in value provided to
+    # group property. Every row with that group value gets assigned to the same series
+    plot(sample.Year, sample.GDP, group=sample.Country)
+    
+    # You can also write this as:
+    @df sample plot(:Year, :GDP, group=:Country)
 end
 
 
@@ -126,31 +146,35 @@ function plot_cultural_diff()
         :pdi => :hierarchy, 
         :idv => :individualism, 
         :mas => :masculinity, 
-        :uai => :uncertainty_avoidance, 
-        :ltowvs => :long_term_thinking, 
+        :uai => :uncertainty, 
+        :ltowvs => :long_term, 
         :ivr => :indulgence)
 
     # Countries we want to filter on by performing an innerjoin
-    countries = DataFrame(country=["Norway", "Sweden", "Denmark", "Finland", "U.S.A."])
+    # countries = DataFrame(country=["Norway", "Sweden", "Denmark", "Finland", "U.S.A."])
+    countries = DataFrame(country=["Norway", "Sweden", "Denmark", "Japan", "China"])
     
     # Pick cultures where the :country column matches in both DataFrame objects
     sample = innerjoin(cultures, countries, on = :country)
     
+    # Stack turns column names into row values. E.g. if you got the row:
+    # country hierarchy individualism
+    # China   80        20
+    #
+    # then this becomes:
+    # country variable       value
+    # China   hierarchy      80
+    # China   individualism  20
+    #
+    # So every column entry gets a separate row with the name of that column    
+    data = stack(sample, 2:7)
+    
+    # Why is this useful? Because the `group` attribute allows you to bundle values
+    # having identical column value such as "hierarchy" into a seprate series.
+    # Here each series is one country. The x-axis values for each country is the
+    # cultural dimensions under the `variable` column
+    groupedbar(data.variable, data.value, group=data.country)
+    
     # Turn into CSV viewable in Numbers
-    clipboard(repr(MIME("text/csv"), sample))
+    # clipboard(repr(MIME("text/csv"), sample))
 end
-
-# Repeats the dimensions (traits) as many times as there are countries
-# traits = repeat(names(sample)[2:end], outer=length(sample.country))
-#
-# # Each country group should be repeated as many times as there are traits
-# country_groups = repeat(sample.country, inner=length(names(sample)[2:end]))
-#
-# groupedbar(
-#     traits,
-#     Array(sample[:, 2:end]),
-#     group = country_groups,
-#     xlabel = "Cultural Dimensions",
-#     ylabel = "Score",
-#         title = "Scores by country on cultural dimensions", bar_width = 0.67,
-#         lw = 0, framestyle = :box)

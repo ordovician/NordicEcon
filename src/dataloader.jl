@@ -92,5 +92,4 @@ function load_maddison_GDP_data()
     path = joinpath(datadir, "maddison-data-gdp-per-capita-in-2011us-single-benchmark.csv")
     gdp = CSV.File(path) |> DataFrame
     gdp = select(gdp, :Entity => :Country, :Year, Symbol("GDP per capita") => :GDP)
-    country_gdp = groupby(gdp, :Country)    
 end
