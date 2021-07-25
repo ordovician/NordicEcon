@@ -2,6 +2,7 @@ using CSV, DataFrames
 
 
 export load_data, load_GDP_per_capita, load_expenses_percent_GDP
+export load_maddison_GDP_data
 export datadir
 
 datadir = normpath(joinpath(@__DIR__, "../data"))
@@ -86,3 +87,10 @@ function load_expenses_percent_GDP()
     load_data(filename)
 end
 
+
+function load_maddison_GDP_data()
+    path = joinpath(datadir, "maddison-data-gdp-per-capita-in-2011us-single-benchmark.csv")
+    gdp = CSV.File(path) |> DataFrame
+    gdp = select(gdp, :Entity => :Country, :Year, Symbol("GDP per capita") => :GDP)
+    country_gdp = groupby(gdp, :Country)    
+end
