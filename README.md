@@ -10,3 +10,6 @@ In particular there are a number of events to study here:
 - Oil shocks of 1973 and 1979.
 - The collapse of the Soviet Union in 1991 and how it caused the largest historical economic collapse for any Western country since 1929 in Finland.
 - The Bank crisis in the 1990s in Nordic countries produced from Banking deregulations in the 1980s
+
+## Utility
+This is also a useable example in how to use data frames and plotting in Julia beyound toy examples.
